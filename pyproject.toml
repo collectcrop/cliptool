@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cliptool"
+version = "0.1.0"
+description = "Small X11 clipboard helper for text, path, and file URI copying"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+  { name = "collectcrop" }
+]
+dependencies = []
+
+[project.scripts]
+cliptool = "cliptool.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
