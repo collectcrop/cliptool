@@ -9,6 +9,8 @@ It wraps `xclip` and lets you copy file-related payloads with the correct target
 - Copy file content as `text/plain`
 - Copy absolute path as `text/plain`
 - Copy GNOME/Nautilus-style `x-special/gnome-copied-files` payload
+- Copy image bytes with auto-detected `image/*` target
+- Command-line auto completion (via `argcomplete`)
 - Print `file://` URI without touching the clipboard
 - Inspect clipboard `TARGETS`
 
@@ -39,6 +41,30 @@ Confirm the CLI is available:
 cliptool --help
 ```
 
+## Shell Auto Completion
+
+`cliptool` uses `argcomplete`.
+
+Enable completion in current shell session (Bash):
+
+```bash
+eval "$(register-python-argcomplete cliptool)"
+```
+
+Enable globally for your user (recommended):
+
+```bash
+activate-global-python-argcomplete --user
+```
+
+After enabling, reopen your shell.
+
+Completion behavior:
+
+- Command names and aliases are completable.
+- Most file arguments use standard file completion.
+- `copy-image` (`ci`) only completes known image extensions.
+
 ## Commands
 
 | Command | Alias | Behavior | Clipboard target |
@@ -47,6 +73,7 @@ cliptool --help
 | `copy-text <path>` | `ct` | Copy file bytes as text | `text/plain` |
 | `copy-path <path>` | `cp` | Copy resolved absolute path | `text/plain` |
 | `copy-gnome-file <path>` | `cgf` | Copy GNOME copied-files payload | `x-special/gnome-copied-files` |
+| `copy-image <path>` | `ci` | Copy image bytes with detected MIME | `image/*` (detected) |
 | `uri <path>` | `u` | Print resolved `file://` URI | (no clipboard write) |
 | `targets` | `tg` | Print current clipboard `TARGETS` | (read-only) |
 
@@ -54,6 +81,16 @@ Notes:
 
 - `<path>` must exist.
 - For `copy-text`, `<path>` should be a readable regular file.
+- `copy-image` detects MIME from file extension.
+
+Supported image extensions for `copy-image`:
+
+- `png` -> `image/png`
+- `jpg`, `jpeg` -> `image/jpeg`
+- `gif` -> `image/gif`
+- `bmp` -> `image/bmp`
+- `webp` -> `image/webp`
+- `svg` -> `image/svg+xml`
 
 ## Practical Usage Examples
 
@@ -155,7 +192,42 @@ copy
 file:///tmp/cliptool-demo/demo.txt
 ```
 
-### 6) Inspect available clipboard targets
+### 6) Copy image with auto-detected MIME target
+
+Prepare a tiny demo PNG:
+
+```bash
+mkdir -p /tmp/cliptool-demo
+cat <<'EOF' | base64 -d > /tmp/cliptool-demo/pixel.png
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7WvXUAAAAASUVORK5CYII=
+EOF
+```
+
+Copy image:
+
+```bash
+cliptool copy-image /tmp/cliptool-demo/pixel.png
+```
+
+Typical output:
+
+```text
+Copied image as image/png: /tmp/cliptool-demo/pixel.png
+```
+
+Check target support in clipboard:
+
+```bash
+xclip -selection clipboard -out -t TARGETS | grep image
+```
+
+You can also dump clipboard image bytes back to a file:
+
+```bash
+xclip -selection clipboard -out -t image/png > /tmp/cliptool-demo/from-clipboard.png
+```
+
+### 7) Inspect available clipboard targets
 
 ```bash
 cliptool targets
@@ -201,6 +273,11 @@ Use an existing path. You can verify with:
 ```bash
 ls -la <path>
 ```
+
+### `Unsupported image type: ...`
+
+`copy-image` currently supports: `png`, `jpg`, `jpeg`, `gif`, `bmp`, `webp`, `svg`.
+Use a supported extension or convert the image first.
 
 ## Development
 

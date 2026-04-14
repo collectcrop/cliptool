@@ -23,3 +23,7 @@ def make_gnome_copied_files_payload(path_str: str, action: str = "copy") -> byte
     # copy
     # file:///abs/path
     return f"{action}\n{to_uri(path_str)}\n".encode("utf-8")
+
+def make_binary_file_payload(path_str: str) -> bytes:
+    with open(to_abs_path(path_str), "rb") as f:
+        return f.read()

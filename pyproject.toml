@@ -4,14 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cliptool"
-version = "0.1.0"
-description = "Small X11 clipboard helper for text, path, and file URI copying"
+version = "0.2.0"
+description = "Small X11 clipboard helper for text, path, file URI, and image copying"
 readme = "README.md"
 requires-python = ">=3.9"
-authors = [
-  { name = "collectcrop" }
+dependencies = [
+  "argcomplete>=3.0",
 ]
-dependencies = []
 
 [project.scripts]
 cliptool = "cliptool.cli:main"
